@@ -129,7 +129,9 @@ func parseHeaders(h *protocol.ResponseHeader, buf []byte) (int, error) {
 	// 'identity' content-length by default
 	h.InitContentLengthWithValue(-2)
 
-	var s ext.HeaderScanner
+	s := ext.HeaderScannerPool.Get().(*ext.HeaderScanner)
+	s.Reset()
+
 	s.B = buf
 	s.DisableNormalizing = h.IsDisableNormalizing()
 	var err error

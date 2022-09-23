@@ -170,7 +170,7 @@ func parseFirstLine(h *protocol.RequestHeader, buf []byte) (int, error) {
 func parseHeaders(h *protocol.RequestHeader, buf []byte) (int, error) {
 	h.InitContentLengthWithValue(-2)
 
-	var s ext.HeaderScanner
+	s := ext.HeaderScannerPool.Get().(*ext.HeaderScanner)
 	s.B = buf
 	s.DisableNormalizing = h.IsDisableNormalizing()
 	var err error

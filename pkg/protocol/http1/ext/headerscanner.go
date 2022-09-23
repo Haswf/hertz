@@ -43,12 +43,27 @@ package ext
 
 import (
 	"bytes"
+	"sync"
 
 	errs "github.com/cloudwego/hertz/pkg/common/errors"
 	"github.com/cloudwego/hertz/pkg/common/utils"
 )
 
-var errInvalidName = errs.NewPublic("invalid header name")
+var (
+	errInvalidName = errs.NewPublic("invalid header name")
+
+	HeaderScannerPool = sync.Pool{
+		New: func() interface{} {
+			return &HeaderScanner{}
+		},
+	}
+
+	HeaderValueScannerPool = sync.Pool{
+		New: func() interface{} {
+			return &HeaderValueScanner{}
+		},
+	}
+)
 
 type HeaderScanner struct {
 	B     []byte
@@ -203,7 +218,8 @@ func (s *HeaderValueScanner) next() bool {
 }
 
 func HasHeaderValue(s, value []byte) bool {
-	var vs HeaderValueScanner
+	vs := HeaderValueScannerPool.Get().(*HeaderValueScanner)
+	vs.Reset()
 	vs.B = s
 	for vs.next() {
 		if utils.CaseInsensitiveCompare(vs.Value, value) {
@@ -211,4 +227,22 @@ func HasHeaderValue(s, value []byte) bool {
 		}
 	}
 	return false
+}
+
+// Reset makes ByteBuffer.B empty.
+func (s *HeaderScanner) Reset() {
+	s.B = s.B[:0]
+	s.Key = s.Key[:0]
+	s.Value = s.Value[:0]
+	s.Err = nil
+	s.HLen = 0
+	s.DisableNormalizing = false
+	s.nextColon = 0
+	s.nextNewLine = 0
+	s.initialized = false
+}
+
+func (s *HeaderValueScanner) Reset() {
+	s.B = s.B[:0]
+	s.Value = s.Value[:0]
 }
