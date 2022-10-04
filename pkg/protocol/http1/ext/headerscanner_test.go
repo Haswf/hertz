@@ -52,3 +52,35 @@ func TestHasHeaderValue(t *testing.T) {
 	assert.True(t, HasHeaderValue(s, []byte("Connection: Keep-Alive")))
 	assert.False(t, HasHeaderValue(s, []byte("Connection: Keep-Alive1")))
 }
+
+func TestHeaderScannerReset(t *testing.T) {
+	var s HeaderScanner
+	s.B = []byte("Expect: 100-continue\n")
+	s.DisableNormalizing = true
+
+	for s.Next() {
+
+	}
+	s.Reset()
+	assert.DeepEqual(t, len(s.B), 0)
+	assert.DeepEqual(t, len(s.Key), 0)
+	assert.DeepEqual(t, len(s.Value), 0)
+
+	assert.DeepEqual(t, s.Err, nil)
+	assert.DeepEqual(t, s.HLen, 0)
+	assert.DeepEqual(t, s.DisableNormalizing, false)
+	assert.DeepEqual(t, s.nextColon, 0)
+	assert.DeepEqual(t, s.nextNewLine, 0)
+	assert.DeepEqual(t, s.initialized, false)
+}
+
+func TestHeaderValueScannerReset(t *testing.T) {
+	var s HeaderValueScanner
+	s.B = []byte("Expect: 100-continue\n")
+	for s.next() {
+
+	}
+	s.Reset()
+	assert.DeepEqual(t, len(s.B), 0)
+	assert.DeepEqual(t, len(s.Value), 0)
+}
