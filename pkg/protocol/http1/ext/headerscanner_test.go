@@ -59,7 +59,6 @@ func TestHeaderScannerReset(t *testing.T) {
 	s.DisableNormalizing = true
 
 	for s.Next() {
-
 	}
 	s.Reset()
 	assert.DeepEqual(t, len(s.B), 0)
@@ -78,7 +77,6 @@ func TestHeaderValueScannerReset(t *testing.T) {
 	var s HeaderValueScanner
 	s.B = []byte("Expect: 100-continue\n")
 	for s.next() {
-
 	}
 	s.Reset()
 	assert.DeepEqual(t, len(s.B), 0)
