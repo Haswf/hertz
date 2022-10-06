@@ -130,7 +130,10 @@ func parseHeaders(h *protocol.ResponseHeader, buf []byte) (int, error) {
 	h.InitContentLengthWithValue(-2)
 
 	s := ext.HeaderScannerPool.Get().(*ext.HeaderScanner)
-	s.Reset()
+	defer func() {
+		s.Reset()
+		ext.HeaderScannerPool.Put(s)
+	}()
 
 	s.B = buf
 	s.DisableNormalizing = h.IsDisableNormalizing()

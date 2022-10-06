@@ -219,7 +219,12 @@ func (s *HeaderValueScanner) next() bool {
 
 func HasHeaderValue(s, value []byte) bool {
 	vs := HeaderValueScannerPool.Get().(*HeaderValueScanner)
-	vs.Reset()
+
+	defer func() {
+		vs.Reset()
+		HeaderValueScannerPool.Put(s)
+	}()
+
 	vs.B = s
 	for vs.next() {
 		if utils.CaseInsensitiveCompare(vs.Value, value) {
