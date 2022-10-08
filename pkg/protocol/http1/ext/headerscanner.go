@@ -222,7 +222,7 @@ func HasHeaderValue(s, value []byte) bool {
 
 	defer func() {
 		vs.Reset()
-		HeaderValueScannerPool.Put(s)
+		HeaderValueScannerPool.Put(vs)
 	}()
 
 	vs.B = s
@@ -234,7 +234,7 @@ func HasHeaderValue(s, value []byte) bool {
 	return false
 }
 
-// Reset makes ByteBuffer.B empty.
+// Reset makes HeaderScanner empty.
 func (s *HeaderScanner) Reset() {
 	s.B = s.B[:0]
 	s.Key = s.Key[:0]
